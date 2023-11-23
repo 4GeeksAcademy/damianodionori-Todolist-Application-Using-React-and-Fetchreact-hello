@@ -7,24 +7,6 @@ export default function TodoList() {
   const inputRef = useRef(null);
 
   useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    try {
-      await getBackEnd();
-    } catch (error) {
-      console.log(error);
-      createBackEnd();
-    }
-  };
-
-  const updateTaskList = (newTaskList) => {
-    setTasks(newTaskList);
-    updateBackEnd(newTaskList);
-  };
-
-  const createBackEnd = () => {
     fetch(url, {
       method: "POST", // post to create
       headers: {
@@ -42,37 +24,27 @@ export default function TodoList() {
         }
       })
       .then(data => setTasks(data))
-      .catch(error => console.error("Error creating user", error));
-  }
+      .catch(error => console.error("error creating user", error));
+  }, []);
 
-  const getBackEnd = async () => {
+  const fetchData = () => {
+    // Fetch info from user
+    fetch(url)
+      .then(resp => resp.json())
+      .then(data => setTasks(data))
+      .catch(error => console.error(error));
+  };
 
-    let resp = await fetch(url);
-    if (resp.ok) {
-      setTasks(await resp.json());
-    } else {
-      throw new Error("Error getting data " + resp.status);
-    }
-  }
-
-  const updateBackEnd = (newTaskList) => {
+  const updateTaskList = (newTaskList) => {
+    setTasks(newTaskList);
     fetch(url, {
-      method: "PUT",
+      method: "PUT", // post to create
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(newTaskList)
     })
-  }
-
-  const deleteBackEnd = () => {
-    fetch(url, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      }
-    })
-  }
+  };
 
   const addTask = () => {
     if (taskInput.trim() !== '') {
@@ -92,7 +64,7 @@ export default function TodoList() {
   };
 
   const clearAllTasks = () => {
-    deleteBackEnd();
+    updateTaskList([]);
   };
 
   return (
